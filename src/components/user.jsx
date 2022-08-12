@@ -41,7 +41,7 @@ const User = ({
                     className="btn btn-sm btn-danger"
                     onClick={() => onDelete(_id)}
                 >
-                    Видалити
+                    X
                 </button>
             </td>
         </tr>
