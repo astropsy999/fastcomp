@@ -24,20 +24,8 @@ const User = ({
             <td>{profession.name}</td>
             <td>{completedMeetings}</td>
             <td>{rate}</td>
-            <td>
-                {/* <BookMark
-                    status={bookmark}
-                    onClick={() => onToggleBookMark(_id)}
-                /> */}
-            </td>
-            <td>
-                {/* <button
-                    className="btn btn-sm btn-danger"
-                    onClick={() => onDelete(_id)}
-                >
-                    X
-                </button> */}
-            </td>
+            <td></td>
+            <td></td>
         </tr>
     );
 };

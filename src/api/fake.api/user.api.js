@@ -150,6 +150,15 @@ const fetchAll = () =>
         }, 500);
     });
 
+const getById = (id) =>
+    new Promise((resolve) => {
+        window.setTimeout(function () {
+            resolve(users.find((user) => user._id === id));
+        }, 500);
+    });
+
+// eslint-disable-next-line import/no-anonymous-default-export
 export default {
-    fetchAll
+    fetchAll,
+    getById
 };
