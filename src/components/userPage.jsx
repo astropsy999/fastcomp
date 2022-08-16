@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import API from "../api";
 import QualitiesList from "./qualitiesList";
 import { useHistory } from "react-router-dom";
+import PropTypes from "prop-types";
 
 const UserPage = () => {
     const params = useParams();
@@ -11,8 +12,10 @@ const UserPage = () => {
 
     const { userId } = params;
 
-    API.users.getById(userId).then((resolve) => {
-        setUser(resolve);
+    useEffect(() => {
+        API.users.getById(userId).then((data) => {
+            setUser(data);
+        });
     });
 
     const handleAllUsers = () => {
@@ -42,6 +45,10 @@ const UserPage = () => {
             )}
         </>
     );
+};
+
+UserPage.propTypes = {
+    userId: PropTypes.string.isRequired
 };
 
 export default UserPage;
