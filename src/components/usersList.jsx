@@ -11,6 +11,7 @@ import _ from "lodash";
 const UsersList = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [professions, setProfessions] = useState();
+    const [searchQuery, setSearchQuery] = useState("");
     const [selectedProf, setSelectedProf] = useState();
     const [sortBy, setSortBy] = useState({ iter: "name", order: "asc" });
 
@@ -22,7 +23,7 @@ const UsersList = () => {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [selectedProf]);
+    }, [selectedProf, searchQuery]);
 
     const pageSize = 8;
 
@@ -35,7 +36,8 @@ const UsersList = () => {
     }, []);
 
     const handleDelete = (id) => {
-        setUsers(users.filter((u) => u._id !== id));
+        const searchedUsers = users.filter((u) => u._id !== id);
+        setUsers(searchedUsers);
     };
 
     const handleToggleBookMark = (id) => {
@@ -54,6 +56,9 @@ const UsersList = () => {
     };
 
     const handleProfessionSelect = (item) => {
+        if (searchQuery !== "") {
+            setSearchQuery("");
+        }
         setSelectedProf(item);
     };
 
@@ -65,8 +70,20 @@ const UsersList = () => {
         setSelectedProf();
     };
 
+    const handleSearchQuery = ({ target }) => {
+        setSelectedProf(undefined);
+        setSearchQuery(target.value);
+    };
+
     if (users) {
-        const filteredUsers = selectedProf
+        const filteredUsers = searchQuery
+            ? users.filter(
+                  (user) =>
+                      user.name
+                          .toLowerCase()
+                          .indexOf(searchQuery.toLowerCase()) !== -1
+              )
+            : selectedProf
             ? users.filter(
                   (user) =>
                       JSON.stringify(user.profession) ===
@@ -84,6 +101,14 @@ const UsersList = () => {
         return (
             <div className="row">
                 <SearchStatus length={count} />
+                <input
+                    className="m-2 mr-2 w-100"
+                    type="text"
+                    name="searchQuery"
+                    placeholder="Знайти..."
+                    onChange={handleSearchQuery}
+                    value={searchQuery}
+                />
 
                 {professions && (
                     <div className="col-md-2">
