@@ -1,84 +1,47 @@
-import React, { useEffect, useState } from "react";
-import TextField from "../components/textField";
-import { validator } from "../utils/validator";
+import React, { useState } from "react";
+import { useParams } from "react-router-dom";
+import LoginForm from "../components/ui/loginForm";
+import RegisterForm from "../components/ui/registerForm";
 
 const Login = () => {
-    const [data, setData] = useState({ email: "", password: "" });
-    const [errors, setErrors] = useState({});
+    const { type } = useParams();
+    const [formType, setFormType] = useState(
+        type === "register" ? type : "login"
+    );
 
-    const validatorConfig = {
-        email: {
-            isRequired: { message: "Електрона скринька обов'язкова" },
-            isEmail: { message: "Невірна поштова адреса" }
-        },
-        password: {
-            isRequired: { message: "Пароль обов'язковий" },
-            isCapitalSymbol: {
-                message: "Пароль повинен мати хочаб одну велику літеру"
-            },
-            isDigitSymbol: { message: "Пароль повинен мати хоча б одну цифру" },
-            min: {
-                message: "Пароль повинен складатися мінімум з 8 символів",
-                value: 8
-            }
-        }
+    const toggleFormType = () => {
+        setFormType((prevState) =>
+            prevState === "register" ? "login" : "register"
+        );
     };
-
-    const handleChange = ({ target }) => {
-        setData((prevState) => ({
-            ...prevState,
-            [target.name]: target.value
-        }));
-    };
-
-    const validate = () => {
-        const errors = validator(data, validatorConfig);
-        setErrors(errors);
-        return Object.keys(errors).length === 0;
-    };
-
-    const isValid = Object.keys(errors).length === 0;
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const isValid = validate();
-        if (!isValid) return;
-        console.log(data);
-    };
-
-    useEffect(() => {
-        validate();
-    }, [data]);
 
     return (
         <div className="container mt-5">
             <div className="row">
                 <div className="col-md-6 offset-md-3 shadow p-4">
-                    <h3 className="mb-4">Вхід</h3>
-                    <form onSubmit={handleSubmit}>
-                        <TextField
-                            label="Email"
-                            name="email"
-                            value={data.email}
-                            onChange={handleChange}
-                            error={errors.email}
-                        />
-                        <TextField
-                            label="Пароль"
-                            type="password"
-                            name="password"
-                            value={data.password}
-                            onChange={handleChange}
-                            error={errors.password}
-                        />
-                        <button
-                            className="btn btn-primary w-100"
-                            type="submit"
-                            disabled={!isValid}
-                        >
-                            Увійти
-                        </button>
-                    </form>
+                    {formType === "register" ? (
+                        <>
+                            <h3 className="mb-4">Реєстрація</h3>
+                            <RegisterForm />
+                            <p>
+                                Вже маєте аккаунт?{" "}
+                                <a role="button" onClick={toggleFormType}>
+                                    Увійти
+                                </a>
+                            </p>
+                        </>
+                    ) : (
+                        <>
+                            <h3 className="mb-4">Вхід</h3>
+                            <LoginForm />
+                            <p>
+                                Немає аккаунту?{" "}
+                                <a role="button" onClick={toggleFormType}>
+                                    Реєстрація
+                                </a>
+                            </p>
+                        </>
+                    )}
                 </div>
             </div>
         </div>

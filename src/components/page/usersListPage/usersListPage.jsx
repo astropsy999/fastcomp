@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import API from "../api";
-import { paginate } from "../utils/paginate";
-import Grouplist from "./grouplist";
-import Pagination from "./pagination";
-import SearchStatus from "./searchStatus";
-import UserTable from "./usersTable";
+import API from "../../../api";
+import { paginate } from "../../../utils/paginate";
+import Grouplist from "../../common/grouplist";
+import Pagination from "../../common/pagination";
+import SearchStatus from "../../ui/searchStatus";
+import UserTable from "../../ui/usersTable";
 import _ from "lodash";
 
-const UsersList = () => {
+const UsersListPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [professions, setProfessions] = useState();
     const [searchQuery, setSearchQuery] = useState("");
@@ -101,14 +101,6 @@ const UsersList = () => {
         return (
             <div className="row">
                 <SearchStatus length={count} />
-                <input
-                    className="m-2 mr-2 w-100"
-                    type="text"
-                    name="searchQuery"
-                    placeholder="Знайти..."
-                    onChange={handleSearchQuery}
-                    value={searchQuery}
-                />
 
                 {professions && (
                     <div className="col-md-2">
@@ -125,16 +117,25 @@ const UsersList = () => {
                         </button>
                     </div>
                 )}
-
-                {count > 0 && (
-                    <UserTable
-                        users={userCrop}
-                        onSort={handleSort}
-                        selectedSort={sortBy}
-                        onDelete={handleDelete}
-                        onToggleBookMark={handleToggleBookMark}
+                <div className="col-md-9">
+                    <input
+                        className="m-2 mr-2 w-100"
+                        type="text"
+                        name="searchQuery"
+                        placeholder="Знайти..."
+                        onChange={handleSearchQuery}
+                        value={searchQuery}
                     />
-                )}
+                    {count > 0 && (
+                        <UserTable
+                            users={userCrop}
+                            onSort={handleSort}
+                            selectedSort={sortBy}
+                            onDelete={handleDelete}
+                            onToggleBookMark={handleToggleBookMark}
+                        />
+                    )}
+                </div>
                 <div className="d-flex justify-content-center">
                     <Pagination
                         itemsCount={count}
@@ -148,8 +149,8 @@ const UsersList = () => {
     }
     return "Завантаження...";
 };
-UsersList.propTypes = {
+UsersListPage.propTypes = {
     users: PropTypes.array
 };
 
-export default UsersList;
+export default UsersListPage;
