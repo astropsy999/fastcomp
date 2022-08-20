@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import API from "../../../api";
 import Qualities from "../../ui/qualities/qualitiesList";
-import { useHistory } from "react-router-dom";
 import PropTypes from "prop-types";
 
 const UserPage = () => {
@@ -16,10 +15,10 @@ const UserPage = () => {
         API.users.getById(userId).then((data) => {
             setUser(data);
         });
-    });
+    }, []);
 
-    const handleAllUsers = () => {
-        history.push("/users");
+    const handleEditPage = () => {
+        history.push(history.location.pathname + "/edit");
     };
 
     return (
@@ -35,9 +34,9 @@ const UserPage = () => {
                     <div>Оцінка: {user.rate}</div>
                     <button
                         className="btn btn-success"
-                        onClick={handleAllUsers}
+                        onClick={handleEditPage}
                     >
-                        Усі користувачі
+                        Редагувати
                     </button>
                 </div>
             ) : (

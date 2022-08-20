@@ -25,7 +25,7 @@ const UsersListPage = () => {
         setCurrentPage(1);
     }, [selectedProf, searchQuery]);
 
-    const pageSize = 8;
+    const pageSize = 6;
 
     const [users, setUsers] = useState();
 

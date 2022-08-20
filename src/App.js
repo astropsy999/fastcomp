@@ -11,7 +11,7 @@ function App() {
             <NavBar />
             <Switch>
                 <Route path="/login/:type?" component={Login} />
-                <Route exact path="/users/:userId?" component={Users} />
+                <Route exact path="/users/:userId?/:edit?" component={Users} />
                 <Route exact path="/" component={Main} />
                 <Redirect to="/" />
             </Switch>
