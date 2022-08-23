@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import API from "../../../api";
-import Qualities from "../../ui/qualities/qualitiesList";
 import PropTypes from "prop-types";
+import Comments from "../../common/comments/comments";
+import UserCard from "./userCard";
+import QualitiesCard from "./qualitiesCard";
+import MeetingsCard from "./meetingsCard";
 
 const UserPage = () => {
     const params = useParams();
-    const history = useHistory();
     const [user, setUser] = useState();
 
     const { userId } = params;
@@ -17,31 +19,24 @@ const UserPage = () => {
         });
     }, []);
 
-    const handleEditPage = () => {
-        history.push(history.location.pathname + "/edit");
-    };
-
     return (
         <>
-            {user ? (
-                <div className="col-md-4 m-4">
-                    <h1>{user.name}</h1>
-                    <h3>Професія: {user.profession.name}</h3>
-                    <div>
-                        <Qualities qualities={user.qualities} />
+            <div className="container">
+                <div className="row gutters-sm">
+                    {user ? (
+                        <div className="col-md-4 mb-3">
+                            <UserCard user={user} />
+                            <QualitiesCard qualities={user.qualities} />
+                            <MeetingsCard meetings={user.completedMeetings} />
+                        </div>
+                    ) : (
+                        <h1>Завантаження</h1>
+                    )}
+                    <div className="col-md-8">
+                        <Comments />
                     </div>
-                    <div>Всього зустрічей: {user.completedMeetings}</div>
-                    <div>Оцінка: {user.rate}</div>
-                    <button
-                        className="btn btn-success"
-                        onClick={handleEditPage}
-                    >
-                        Редагувати
-                    </button>
                 </div>
-            ) : (
-                <h1>Завантаження</h1>
-            )}
+            </div>
         </>
     );
 };
