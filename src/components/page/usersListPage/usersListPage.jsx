@@ -7,6 +7,7 @@ import Pagination from "../../common/pagination";
 import SearchStatus from "../../ui/searchStatus";
 import UserTable from "../../ui/usersTable";
 import _ from "lodash";
+import { useUser } from "../../../hooks/useUsers";
 
 const UsersListPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
@@ -27,28 +28,22 @@ const UsersListPage = () => {
 
     const pageSize = 6;
 
-    const [users, setUsers] = useState();
+    const { users } = useUser();
 
-    useEffect(() => {
-        API.users.fetchAll().then((data) => {
-            setUsers(data);
-        });
-    }, []);
-
-    const handleDelete = (id) => {
-        const searchedUsers = users.filter((u) => u._id !== id);
-        setUsers(searchedUsers);
+    const handleDelete = (useIid) => {
+        console.log("useIid: ", useIid);
+        // const searchedUsers = users.filter((u) => u._id !== id);
+        // setUsers(searchedUsers);
     };
 
     const handleToggleBookMark = (id) => {
-        setUsers(
-            users.map((user) => {
-                if (user._id === id) {
-                    return { ...user, bookmark: !user.bookmark };
-                }
-                return user;
-            })
-        );
+        const newArray = users.map((user) => {
+            if (user._id === id) {
+                return { ...user, bookmark: !user.bookmark };
+            }
+            return user;
+        });
+        console.log("newArray: ", newArray);
     };
 
     const handlePageChange = (pageIndex) => {
