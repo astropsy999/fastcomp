@@ -1,44 +1,36 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import API from "../../../api";
+import React from "react";
 import PropTypes from "prop-types";
 import Comments from "../../common/comments/comments";
 import UserCard from "./userCard";
 import QualitiesCard from "./qualitiesCard";
 import MeetingsCard from "./meetingsCard";
+import { useUser } from "../../../hooks/useUsers";
+import { CommentsProvider } from "../../../hooks/useComments";
 
-const UserPage = () => {
-    const params = useParams();
-    const [user, setUser] = useState();
-
-    const { userId } = params;
-
-    useEffect(() => {
-        API.users.getById(userId).then((data) => {
-            setUser(data);
-        });
-    }, []);
-
-    return (
-        <>
+const UserPage = ({ userId }) => {
+    const { getUserById } = useUser();
+    const user = getUserById(userId);
+    if (user) {
+        return (
             <div className="container">
                 <div className="row gutters-sm">
-                    {user ? (
-                        <div className="col-md-4 mb-3">
-                            <UserCard user={user} />
-                            <QualitiesCard qualities={user.qualities} />
-                            <MeetingsCard meetings={user.completedMeetings} />
-                        </div>
-                    ) : (
-                        <h1>Завантаження</h1>
-                    )}
+                    <div className="col-md-4 mb-3">
+                        <UserCard user={user} />
+                        <QualitiesCard data={user.qualities} />
+                        <MeetingsCard meetings={user.completedMeetings} />
+                    </div>
+
                     <div className="col-md-8">
-                        <Comments />
+                        <CommentsProvider>
+                            <Comments />
+                        </CommentsProvider>
                     </div>
                 </div>
             </div>
-        </>
-    );
+        );
+    } else {
+        return <h1>Завантаження...</h1>;
+    }
 };
 
 UserPage.propTypes = {

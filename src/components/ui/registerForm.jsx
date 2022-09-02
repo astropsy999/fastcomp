@@ -1,38 +1,52 @@
 import React, { useEffect, useState } from "react";
 import { validator } from "../../utils/validator";
 import TextField from "../common/form/textField";
-import API from "../../api";
 import SelectField from "../common/form/selectField";
 import RadioField from "../common/form/radioField";
 import MultiSelectField from "../common/form/multiSelectField";
 import CheckBoxField from "../common/form/checkBoxField";
+import { useQualities } from "../../hooks/useQualities";
+import { useProfessions } from "../../hooks/useProfession";
+import { useAuth } from "../../hooks/useAuth";
+import { useHistory } from "react-router-dom";
 
 const RegisterForm = () => {
+    const history = useHistory();
     const [data, setData] = useState({
         email: "",
         password: "",
         profession: "",
         sex: "male",
+        name: "",
         qualities: [],
         licence: false
     });
     const [errors, setErrors] = useState({});
-    const [professions, setProfessions] = useState();
-    const [qualities, setQualities] = useState({});
+    const { signUp } = useAuth();
+    const { qualities } = useQualities();
 
-    useEffect(() => {
-        API.professions.fetchAll().then((data) => {
-            setProfessions(data);
-        });
-        API.qualities.fetchAll().then((data) => {
-            setQualities(data);
-        });
-    }, []);
+    const qualitiesList = qualities.map((q) => ({
+        label: q.name,
+        value: q._id
+    }));
+
+    const { professions } = useProfessions();
+    const professionsList = professions.map((p) => ({
+        label: p.name,
+        value: p._id
+    }));
 
     const validatorConfig = {
         email: {
             isRequired: { message: "Електрона скринька обов'язкова" },
             isEmail: { message: "Невірна поштова адреса" }
+        },
+        name: {
+            isRequired: { message: "Ім'я обов'язкове" },
+            min: {
+                message: "Ім'я повинне складатися мінімум з 3 символів",
+                value: 3
+            }
         },
         password: {
             isRequired: { message: "Пароль обов'язковий" },
@@ -71,11 +85,20 @@ const RegisterForm = () => {
 
     const isValid = Object.keys(errors).length === 0;
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const isValid = validate();
         if (!isValid) return;
-        console.log(data);
+        const newData = {
+            ...data,
+            qualities: data.qualities.map((q) => q.value)
+        };
+        try {
+            await signUp(newData);
+            history.push("/");
+        } catch (error) {
+            setErrors(error);
+        }
     };
 
     useEffect(() => {
@@ -84,6 +107,13 @@ const RegisterForm = () => {
 
     return (
         <form onSubmit={handleSubmit}>
+            <TextField
+                label="Ім'я"
+                name="name"
+                value={data.name}
+                onChange={handleChange}
+                error={errors.name}
+            />
             <TextField
                 label="Email"
                 name="email"
@@ -102,12 +132,12 @@ const RegisterForm = () => {
 
             <SelectField
                 label="Оберіть професію"
-                options={professions}
+                options={professionsList}
                 value={data.profession}
                 onChange={handleChange}
                 defaultOption="Вибрати"
                 error={errors.profession}
-                name="professions"
+                name="profession"
             />
             <RadioField
                 options={[
@@ -122,7 +152,7 @@ const RegisterForm = () => {
             />
 
             <MultiSelectField
-                options={qualities}
+                options={qualitiesList}
                 onChange={handleChange}
                 defaultValue={data.qualities}
                 name="qualities"
@@ -142,7 +172,7 @@ const RegisterForm = () => {
                 type="submit"
                 disabled={!isValid}
             >
-                Увійти
+                Реєстрація
             </button>
         </form>
     );

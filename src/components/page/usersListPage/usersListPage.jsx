@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import API from "../../../api";
 import { paginate } from "../../../utils/paginate";
 import Grouplist from "../../common/grouplist";
 import Pagination from "../../common/pagination";
@@ -8,19 +7,16 @@ import SearchStatus from "../../ui/searchStatus";
 import UserTable from "../../ui/usersTable";
 import _ from "lodash";
 import { useUser } from "../../../hooks/useUsers";
+import { useProfessions } from "../../../hooks/useProfession";
+import { useAuth } from "../../../hooks/useAuth";
 
 const UsersListPage = () => {
+    const { isLoading: professionsLoading, professions } = useProfessions();
+    const { currentUser } = useAuth();
     const [currentPage, setCurrentPage] = useState(1);
-    const [professions, setProfessions] = useState();
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedProf, setSelectedProf] = useState();
     const [sortBy, setSortBy] = useState({ iter: "name", order: "asc" });
-
-    useEffect(() => {
-        API.professions.fetchAll().then((data) => {
-            setProfessions(data);
-        });
-    }, []);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -70,79 +66,79 @@ const UsersListPage = () => {
         setSearchQuery(target.value);
     };
 
-    if (users) {
+    function filterUsers(data) {
         const filteredUsers = searchQuery
-            ? users.filter(
+            ? data.filter(
                   (user) =>
                       user.name
                           .toLowerCase()
                           .indexOf(searchQuery.toLowerCase()) !== -1
               )
             : selectedProf
-            ? users.filter(
+            ? data.filter(
                   (user) =>
                       JSON.stringify(user.profession) ===
                       JSON.stringify(selectedProf)
               )
-            : users;
-        const count = filteredUsers.length;
-        const sortedUsers = _.orderBy(
-            filteredUsers,
-            [sortBy.path],
-            [sortBy.order]
-        );
-        const userCrop = paginate(sortedUsers, currentPage, pageSize);
+            : data;
 
-        return (
-            <div className="row">
-                <SearchStatus length={count} />
-
-                {professions && (
-                    <div className="col-md-2">
-                        <Grouplist
-                            items={professions}
-                            onItemSelect={handleProfessionSelect}
-                            selectedItem={selectedProf}
-                        />
-                        <button
-                            className="btn m-2 btn-success"
-                            onClick={clearFilter}
-                        >
-                            Усі професії
-                        </button>
-                    </div>
-                )}
-                <div className="col-md-9">
-                    <input
-                        className="m-2 mr-2 w-100"
-                        type="text"
-                        name="searchQuery"
-                        placeholder="Знайти..."
-                        onChange={handleSearchQuery}
-                        value={searchQuery}
-                    />
-                    {count > 0 && (
-                        <UserTable
-                            users={userCrop}
-                            onSort={handleSort}
-                            selectedSort={sortBy}
-                            onDelete={handleDelete}
-                            onToggleBookMark={handleToggleBookMark}
-                        />
-                    )}
-                </div>
-                <div className="d-flex justify-content-center">
-                    <Pagination
-                        itemsCount={count}
-                        currentPage={currentPage}
-                        pageSize={pageSize}
-                        onPageChange={handlePageChange}
-                    />
-                </div>
-            </div>
-        );
+        return filteredUsers.filter((u) => u._id !== currentUser._id);
     }
-    return "Завантаження...";
+
+    const filteredUsers = filterUsers(users);
+
+    const count = filteredUsers.length;
+    const sortedUsers = _.orderBy(filteredUsers, [sortBy.path], [sortBy.order]);
+    const userCrop = paginate(sortedUsers, currentPage, pageSize);
+
+    return (
+        <div className="row">
+            <SearchStatus length={count} />
+
+            {professions && !professionsLoading && (
+                <div className="col-md-2">
+                    <Grouplist
+                        items={professions}
+                        onItemSelect={handleProfessionSelect}
+                        selectedItem={selectedProf}
+                    />
+                    <button
+                        className="btn m-2 btn-success"
+                        onClick={clearFilter}
+                    >
+                        Усі професії
+                    </button>
+                </div>
+            )}
+            <div className="col-md-9">
+                <input
+                    className="m-2 mr-2 w-100"
+                    type="text"
+                    name="searchQuery"
+                    placeholder="Знайти..."
+                    onChange={handleSearchQuery}
+                    value={searchQuery}
+                />
+                {count > 0 && (
+                    <UserTable
+                        users={userCrop}
+                        onSort={handleSort}
+                        selectedSort={sortBy}
+                        onDelete={handleDelete}
+                        onToggleBookMark={handleToggleBookMark}
+                    />
+                )}
+            </div>
+            <div className="d-flex justify-content-center">
+                <Pagination
+                    itemsCount={count}
+                    currentPage={currentPage}
+                    pageSize={pageSize}
+                    onPageChange={handlePageChange}
+                />
+            </div>
+        </div>
+    );
 };
 UsersListPage.propTypes = {
     users: PropTypes.array
