@@ -6,13 +6,17 @@ import Pagination from "../../common/pagination";
 import SearchStatus from "../../ui/searchStatus";
 import UserTable from "../../ui/usersTable";
 import _ from "lodash";
-import { useUser } from "../../../hooks/useUsers";
-import { useProfessions } from "../../../hooks/useProfession";
-import { useAuth } from "../../../hooks/useAuth";
+import { useSelector } from "react-redux";
+import {
+    getProfessions,
+    getProfessionsLoadingStatus
+} from "../../../store/professions";
+import { getCurrentUserId, getUsersList } from "../../../store/users";
 
 const UsersListPage = () => {
-    const { isLoading: professionsLoading, professions } = useProfessions();
-    const { currentUser } = useAuth();
+    const professions = useSelector(getProfessions());
+    const professionLoading = useSelector(getProfessionsLoadingStatus());
+    const currentUserId = useSelector(getCurrentUserId());
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedProf, setSelectedProf] = useState();
@@ -24,12 +28,10 @@ const UsersListPage = () => {
 
     const pageSize = 6;
 
-    const { users } = useUser();
+    const users = useSelector(getUsersList());
 
     const handleDelete = (useIid) => {
         console.log("useIid: ", useIid);
-        // const searchedUsers = users.filter((u) => u._id !== id);
-        // setUsers(searchedUsers);
     };
 
     const handleToggleBookMark = (id) => {
@@ -82,7 +84,7 @@ const UsersListPage = () => {
               )
             : data;
 
-        return filteredUsers.filter((u) => u._id !== currentUser._id);
+        return filteredUsers.filter((u) => u._id !== currentUserId);
     }
 
     const filteredUsers = filterUsers(users);
@@ -95,7 +97,7 @@ const UsersListPage = () => {
         <div className="row">
             <SearchStatus length={count} />
 
-            {professions && !professionsLoading && (
+            {!professionLoading && (
                 <div className="col-md-2">
                     <Grouplist
                         items={professions}

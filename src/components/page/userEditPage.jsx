@@ -5,20 +5,25 @@ import RadioField from "../common/form/radioField";
 import MultiSelectField from "../common/form/multiSelectField";
 import { validator } from "../../utils/validator";
 import BackHistoryButton from "../common/backButton";
-import { useAuth } from "../../hooks/useAuth";
-import { useQualities } from "../../hooks/useQualities";
-import { useProfessions } from "../../hooks/useProfession";
-import { useHistory } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { getQualities, getQualitiesLoadingStatus } from "../../store/qualities";
+import {
+    getProfessions,
+    getProfessionsLoadingStatus
+} from "../../store/professions";
+import { getCurrentUserData, updateUser } from "../../store/users";
 
 const UserEditForm = () => {
     const [isLoading, setLoading] = useState(true);
     const [data, setData] = useState();
-    const history = useHistory();
-
-    const { currentUser, updateUserData } = useAuth();
-    const { qualities, isLoading: qualitiesLoading } = useQualities();
-    const { professions, isLoading: professionLoading } = useProfessions();
+    const currentUser = useSelector(getCurrentUserData());
+    const dispatch = useDispatch();
+    const professions = useSelector(getProfessions());
+    const professionLoading = useSelector(getProfessionsLoadingStatus());
     const [errors, setErrors] = useState({});
+    const qualities = useSelector(getQualities());
+    const qualitiesLoading = useSelector(getQualitiesLoadingStatus());
+
     const professionsList = professions.map((p) => ({
         label: p.name,
         value: p._id
@@ -51,21 +56,20 @@ const UserEditForm = () => {
         }
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         const isValid = validate();
         if (!isValid) return;
-
-        await updateUserData({
-            ...data,
-            qualities: data.qualities.map((q) => q.value)
-        });
-        history.push(`/users/${currentUser._id}`);
+        dispatch(
+            updateUser({
+                ...data,
+                qualities: data.qualities.map((q) => q.value)
+            })
+        );
     };
 
     useEffect(() => {
         if (!professionLoading && !qualitiesLoading && currentUser && !data) {
-            console.log("currentUser: ", currentUser);
             setData({
                 ...currentUser,
                 qualities: transformData(currentUser.qualities)

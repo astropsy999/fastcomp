@@ -1,17 +1,20 @@
 import React from "react";
+import PropTypes from "prop-types";
+import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { useAuth } from "../../../hooks/useAuth";
+import { getCurrentUserId } from "../../../store/users";
 
-const userCard = ({ user }) => {
+const UserCard = ({ user }) => {
     const history = useHistory();
-    const { currentUser } = useAuth();
+    const currentUserId = useSelector(getCurrentUserId());
+
     const handleEditPage = () => {
         history.push(history.location.pathname + "/edit");
     };
     return (
         <div className="card mb-3">
             <div className="card-body">
-                {currentUser._id === user._id && (
+                {currentUserId === user._id && (
                     <button
                         className="position-absolute top-0 end-0 btn btn-light btn-sm"
                         onClick={handleEditPage}
@@ -49,5 +52,8 @@ const userCard = ({ user }) => {
         </div>
     );
 };
+UserCard.propTypes = {
+    user: PropTypes.object
+};
 
-export default userCard;
+export default UserCard;

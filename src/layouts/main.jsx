@@ -9,7 +9,7 @@ const Main = () => {
     };
     return (
         <div className="container mt-5">
-            <h1>Main Page</h1>
+            <h2>Головна сторінка</h2>
             <h3>Ініціалізація даних в FireBase</h3>
             <ul>
                 <li>Статус: {status} </li>
